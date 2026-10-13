@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Northfold Stoneware Mug — $28</title>
+  <title>Northfold</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,66 +12,44 @@
     <nav aria-label="Main">
       <ul>
         <li><a href="#product">Shop</a></li>
-        <li><a href="#why">About</a></li>
         <li><a href="#contact">Contact</a></li>
+        <li>
+          <label class="fx" for="currency">Currency
+            <select id="currency"></select>
+          </label>
+        </li>
+        <li>
+          <button type="button" id="open-cart" aria-controls="drawer">
+            Cart
+            <span id="cart-count">0</span>
+          </button>
+        </li>
       </ul>
     </nav>
   </header>
 
   <main>
-    <article id="product" class="product">
+    <p id="status" class="status" role="status">Loading product…</p>
+
+    <article id="product" class="product" hidden>
       <div class="gallery">
         <div class="stage">
-          <img class="shot shot-a" src="images/Mug_front.jpg" alt="Northfold stoneware mug, front view, oat glaze">
-          <img class="shot shot-b" src="images/Mug_slate_gaze.jpg" alt="Northfold stoneware mug, side view with handle, slate glaze">
-          <img class="shot shot-c" src="images/Mug_angled.jpg" alt="Looking into the Northfold mug, moss glaze around the rim">
+          <img id="main-image" alt="">
         </div>
-        <div class="thumbs">
-          <label>
-            <input type="radio" name="shot" id="shot-a" checked>
-            <img src="images/Mug_front.jpg" alt="">
-            <span class="vh">Front view</span>
-          </label>
-          <label>
-            <input type="radio" name="shot" id="shot-b">
-            <img src="images/Mug_slate_gaze.jpg" alt="">
-            <span class="vh">Side view</span>
-          </label>
-          <label>
-            <input type="radio" name="shot" id="shot-c">
-            <img src="images/Mug_angled.jpg" alt="">
-            <span class="vh">Rim detail</span>
-          </label>
-        </div>
+        <div id="thumbs" class="thumbs"></div>
       </div>
 
       <div class="buy">
-        <p class="kicker">Homeware / Drinkware</p>
-        <h1>Northfold Stoneware Mug</h1>
-        <p class="price">$28</p>
-        <p class="lede">12 oz. Wide base, thick walls, a handle you can actually hold. Made in small lots and glazed in three colours.</p>
+        <p class="kicker">From the catalogue</p>
+        <h1 id="title"></h1>
+        <p id="price" class="price"></p>
+        <p id="description" class="lede"></p>
 
-        <form>
-          <fieldset>
-            <legend>Glaze</legend>
-            <div class="glazes">
-              <label class="glaze">
-                <input type="radio" name="glaze" value="oat" checked>
-                <span class="swatch oat"></span>
-                Oat
-              </label>
-              <label class="glaze">
-                <input type="radio" name="glaze" value="slate">
-                <span class="swatch slate"></span>
-                Slate
-              </label>
-              <label class="glaze">
-                <input type="radio" name="glaze" value="moss">
-                <span class="swatch moss"></span>
-                Moss
-              </label>
-            </div>
-          </fieldset>
+        <form id="buy-form">
+          <div class="field">
+            <label for="variant">Variant</label>
+            <select id="variant" name="variant"></select>
+          </div>
 
           <div class="qty-row">
             <label for="qty">Quantity</label>
@@ -82,30 +60,24 @@
         </form>
       </div>
     </article>
-
-    <section id="why" class="why">
-      <h2>Why this mug</h2>
-      <ul>
-        <li>
-          <h3>Small batches</h3>
-          <p>We throw a few dozen at a time. Slight variation in the glaze is normal, not a defect.</p>
-        </li>
-        <li>
-          <h3>Built to be used</h3>
-          <p>Chip-resistant glaze. Fine in the microwave, dishwasher, and a 200°C oven.</p>
-        </li>
-        <li>
-          <h3>Holds the heat</h3>
-          <p>Stoneware walls stay warm without burning your hand. Coffee is still coffee twenty minutes later.</p>
-        </li>
-      </ul>
-    </section>
   </main>
 
+  <div id="overlay" class="overlay" hidden></div>
+  <aside id="drawer" class="drawer" hidden>
+    <div class="drawer-head">
+      <h2>Cart</h2>
+      <button type="button" id="close-cart">Close</button>
+    </div>
+    <ul id="cart-lines"></ul>
+    <p id="cart-empty" class="muted">Your cart is empty.</p>
+    <p id="cart-subtotal" class="subtotal"></p>
+  </aside>
+
   <footer id="contact">
-    <p>Northfold · small homeware · est. 2024</p>
+    <p>Northfold · small homeware · catalogue via mock.shop while the store is built</p>
     <p>Questions: <a href="mailto:hello@northfold.example">hello@northfold.example</a></p>
     <p>&copy; 2026 Northfold</p>
   </footer>
+  <script type="module" src="script.js"></script>
 </body>
 </html>

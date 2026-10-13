@@ -1,9 +1,9 @@
-# Northfold Stoneware Mug
+# Northfold catalogue (mock.shop)
 
-Product page for Northfold’s first piece: a $28 stoneware mug available in three glazes (Oat, Slate, and Moss). Built with a single `index.html` and `styles.css` — no frameworks or libraries.
+Product page that loads one item from Shopify’s public practice API at mock.shop. Plain HTML, CSS, and one `script.js` module. Default product is the Hoodie (`hoodie-old`). Pass `?handle=sweatpants` (or any other handle) to try a different one.
 
-The page includes a header with navigation, a product section with image gallery, title, price, glaze radio buttons, quantity input and Add to cart button, three short benefit statements, and a footer. Layout is single-column below 750px and two-column above.
+On load the page fetches title, description, price, images and variants. Prices convert from CAD into the currency for the visitor’s location (IP lookup), and the header dropdown can switch currency. Picking a variant updates the price and the main photo when that variant has an image. Thumbnails work with mouse and keyboard. Add to cart stores the line in `localStorage` so the header count survives a refresh. The cart drawer lists each line and a subtotal.
 
-**Decision:** I used radio buttons + CSS `:has()` to switch the main gallery image instead of JavaScript. The brief only allowed HTML and CSS, and this approach still keeps the gallery fully keyboard-accessible.
+**Decision:** I kept the cart in `localStorage` instead of memory only, because the brief asked for the count to survive reload, and that is the simplest place a browser will keep a JSON array.
 
-**Next steps:** Connect the Add to cart button to a real Shopify cart (after tonight’s Partner account setup) and make the main photo update automatically when a glaze is selected.
+**Next:** Point the same fetch at a real Northfold storefront API once the Shopify theme is running, and send the cart to Checkout.
