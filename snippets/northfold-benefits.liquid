@@ -1,0 +1,25 @@
+{% doc %}
+  Renders the merchant-managed benefits list for the Northfold product section.
+
+  @param {object} section - The parent section, used for heading and blocks
+{% enddoc %}
+
+{% if section.blocks.size > 0 %}
+  <div class="nf-benefits">
+    {% if section.settings.benefits_heading != blank %}
+      <h2>{{ section.settings.benefits_heading | escape }}</h2>
+    {% endif %}
+    <ul>
+      {% for block in section.blocks %}
+        <li {{ block.shopify_attributes }}>
+          {% if block.settings.title != blank %}
+            <h3>{{ block.settings.title | escape }}</h3>
+          {% endif %}
+          {% if block.settings.text != blank %}
+            <p>{{ block.settings.text | escape }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

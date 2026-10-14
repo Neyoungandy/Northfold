@@ -1,0 +1,390 @@
+{% assign current_variant = product.selected_or_first_available_variant %}
+{% assign main_image = product.featured_image | default: product.images.first %}
+{% assign main_alt = main_image.alt | default: product.title %}
+
+<section
+  class="nf-product"
+  style="--nf-bg: {{ section.settings.background }};"
+  data-nf-product
+>
+  <div class="nf-grid">
+    <div class="nf-gallery">
+      {% if main_image %}
+        <div class="nf-stage">
+          {{
+            main_image
+            | image_url: width: 1200
+            | image_tag:
+              widths: '400, 800, 1200',
+              sizes: '(min-width: 750px) 50vw, 100vw',
+              alt: main_alt,
+              class: 'nf-main'
+          }}
+        </div>
+      {% endif %}
+
+      {% if product.images.size > 1 %}
+        <div class="nf-thumbs">
+          {% for image in product.images %}
+            {% assign thumb_alt = image.alt | default: product.title %}
+            <button
+              type="button"
+              class="nf-thumb"
+              data-nf-thumb
+              data-src="{{ image | image_url: width: 1200 }}"
+              data-alt="{{ thumb_alt | escape }}"
+            >
+              {{
+                image
+                | image_url: width: 400
+                | image_tag:
+                  widths: '200, 400',
+                  sizes: '25vw',
+                  alt: thumb_alt
+              }}
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="nf-buy">
+      {% if section.settings.kicker != blank %}
+        <p class="nf-kicker">{{ section.settings.kicker | escape }}</p>
+      {% endif %}
+
+      <h1>{{ product.title }}</h1>
+      <p class="nf-price" data-nf-price>{{ current_variant.price | money }}</p>
+
+      {% if product.description != blank %}
+        <div class="nf-desc">{{ product.description }}</div>
+      {% endif %}
+
+      {% form 'product', product, class: 'nf-form' %}
+        <label for="nf-variant-{{ section.id }}">{{ section.settings.variant_label | escape }}</label>
+        <select
+          id="nf-variant-{{ section.id }}"
+          name="id"
+          data-nf-variants
+        >
+          {% for variant in product.variants %}
+            <option
+              value="{{ variant.id }}"
+              {% if variant == current_variant %}
+                selected
+              {% endif %}
+              data-price="{{ variant.price | money }}"
+              {% if variant.image %}
+                data-src="{{ variant.image | image_url: width: 1200 }}"
+              {% endif %}
+            >
+              {{ variant.title }}
+            </option>
+          {% endfor %}
+        </select>
+
+        {% if section.settings.show_quantity %}
+          <label for="nf-qty-{{ section.id }}">{{ section.settings.quantity_label | escape }}</label>
+          <input
+            id="nf-qty-{{ section.id }}"
+            type="number"
+            name="quantity"
+            min="1"
+            value="1"
+          >
+        {% endif %}
+
+        <button type="submit" name="add">
+          {{ section.settings.add_label | escape }}
+        </button>
+      {% endform %}
+    </div>
+  </div>
+
+  {% render 'northfold-benefits', section: section %}
+</section>
+
+{% stylesheet %}
+  .nf-product {
+    background: var(--nf-bg, #f3eee6);
+    color: #2c2824;
+    padding: 2rem 1rem 3rem;
+    font-family: Georgia, "Palatino Linotype", Palatino, serif;
+  }
+
+  .nf-grid,
+  .nf-benefits {
+    max-width: 68rem;
+    margin: 0 auto;
+  }
+
+  .nf-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .nf-stage {
+    background: #fbf8f3;
+    border: 1px solid #d9d0c4;
+  }
+
+  .nf-main {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  .nf-thumbs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+  }
+
+  .nf-thumb {
+    padding: 0;
+    border: 2px solid #d9d0c4;
+    background: #fbf8f3;
+    cursor: pointer;
+  }
+
+  .nf-thumb img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  .nf-kicker {
+    margin: 0 0 0.35rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6a6158;
+  }
+
+  .nf-buy h1 {
+    margin: 0 0 0.4rem;
+    font-size: 2rem;
+    font-weight: normal;
+    line-height: 1.2;
+  }
+
+  .nf-price {
+    margin: 0 0 1rem;
+    font-size: 1.35rem;
+  }
+
+  .nf-desc {
+    margin: 0 0 1.5rem;
+    color: #6a6158;
+  }
+
+  .nf-form {
+    display: grid;
+    gap: 0.4rem 0;
+    max-width: 20rem;
+  }
+
+  .nf-form select,
+  .nf-form input[type='number'] {
+    margin-bottom: 1rem;
+    padding: 0.55rem 0.6rem;
+    border: 1px solid #d9d0c4;
+    background: #fbf8f3;
+    color: inherit;
+    font: inherit;
+  }
+
+  .nf-form button {
+    justify-self: start;
+    padding: 0.8rem 1.4rem;
+    border: 0;
+    background: #2c2824;
+    color: #fbf8f3;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .nf-benefits {
+    margin-top: 2.5rem;
+  }
+
+  .nf-benefits h2 {
+    margin: 0 0 1.5rem;
+    font-size: 1.4rem;
+    font-weight: normal;
+  }
+
+  .nf-benefits ul {
+    display: grid;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nf-benefits h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1.05rem;
+  }
+
+  .nf-benefits p {
+    margin: 0;
+    color: #6a6158;
+  }
+
+  @media (min-width: 750px) {
+    .nf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .nf-benefits ul {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2.5rem;
+    }
+
+    .nf-buy h1 {
+      font-size: 2.4rem;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  var root = document.querySelector('[data-nf-product]');
+  if (root) {
+    var select = root.querySelector('[data-nf-variants]');
+    var price = root.querySelector('[data-nf-price]');
+    var main = root.querySelector('.nf-main');
+
+    if (select && price) {
+      select.addEventListener('change', function () {
+        var opt = select.options[select.selectedIndex];
+        if (opt.getAttribute('data-price')) {
+          price.textContent = opt.getAttribute('data-price');
+        }
+        var src = opt.getAttribute('data-src');
+        if (src && main) {
+          main.src = src;
+          main.removeAttribute('srcset');
+        }
+      });
+    }
+
+    var thumbs = root.querySelectorAll('[data-nf-thumb]');
+    for (var i = 0; i < thumbs.length; i++) {
+      thumbs[i].addEventListener('click', function () {
+        if (!main) return;
+        main.src = this.getAttribute('data-src');
+        main.alt = this.getAttribute('data-alt') || main.alt;
+        main.removeAttribute('srcset');
+      });
+    }
+  }
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Northfold product",
+  "tag": "section",
+  "class": "northfold-product",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Kicker",
+      "default": "From the catalogue"
+    },
+    {
+      "type": "text",
+      "id": "benefits_heading",
+      "label": "Benefits heading",
+      "default": "Why this piece"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#f3eee6"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quantity",
+      "label": "Show quantity",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "variant_label",
+      "label": "Variant label",
+      "default": "Variant"
+    },
+    {
+      "type": "text",
+      "id": "quantity_label",
+      "label": "Quantity label",
+      "default": "Quantity"
+    },
+    {
+      "type": "text",
+      "id": "add_label",
+      "label": "Add to cart label",
+      "default": "Add to cart"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "Benefit",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Benefit title"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "A short note the merchant can edit."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Northfold product",
+      "blocks": [
+        {
+          "type": "benefit",
+          "settings": {
+            "title": "Small batches",
+            "text": "We make a few dozen at a time. Slight variation is normal."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "title": "Built to be used",
+            "text": "Made for daily wear and wash. Treat it like something you own."
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "title": "Holds up",
+            "text": "Solid construction so it still looks right after a season of use."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

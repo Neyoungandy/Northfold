@@ -1,0 +1,41 @@
+{
+  "sections": {
+    "main": {
+      "type": "northfold-product",
+      "blocks": {
+        "benefit-1": {
+          "type": "benefit",
+          "settings": {
+            "title": "Small batches",
+            "text": "We make a few dozen at a time. Slight variation is normal."
+          }
+        },
+        "benefit-2": {
+          "type": "benefit",
+          "settings": {
+            "title": "Built to be used",
+            "text": "Made for daily wear and wash. Treat it like something you own."
+          }
+        },
+        "benefit-3": {
+          "type": "benefit",
+          "settings": {
+            "title": "Holds up",
+            "text": "Solid construction so it still looks right after a season of use."
+          }
+        }
+      },
+      "block_order": ["benefit-1", "benefit-2", "benefit-3"],
+      "settings": {
+        "kicker": "From the catalogue",
+        "benefits_heading": "Why this piece",
+        "background": "#f3eee6",
+        "show_quantity": true,
+        "variant_label": "Variant",
+        "quantity_label": "Quantity",
+        "add_label": "Add to cart"
+      }
+    }
+  },
+  "order": ["main"]
+}
