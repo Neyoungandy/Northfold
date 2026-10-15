@@ -103,21 +103,6 @@ nav button:hover {
   text-decoration: underline;
 }
 
-.fx {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
-}
-
-.fx select {
-  font: inherit;
-  color: inherit;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  padding: 0.25rem 0.4rem;
-}
-
 #cart-count {
   display: inline-block;
   min-width: 1.25rem;

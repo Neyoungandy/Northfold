@@ -1,8 +1,6 @@
 const API = 'https://mock.shop/api';
 const CART_KEY = 'northfold-cart';
-const CURRENCY_KEY = 'northfold-currency';
 const FALLBACK_HANDLE = 'hoodie-old';
-const CURRENCY_PICKS = ['CAD', 'USD', 'EUR', 'GBP', 'NGN', 'GHS', 'KES', 'ZAR', 'INR', 'AUD'];
 
 const statusEl = document.getElementById('status');
 const productEl = document.getElementById('product');
@@ -22,7 +20,6 @@ const drawerEl = document.getElementById('drawer');
 const linesEl = document.getElementById('cart-lines');
 const emptyEl = document.getElementById('cart-empty');
 const subtotalEl = document.getElementById('cart-subtotal');
-const currencyEl = document.getElementById('currency');
 
 const query = `
 query Product($handle: String!) {
@@ -44,101 +41,32 @@ query Product($handle: String!) {
 }`;
 
 let current = null;
-let rates = { CAD: 1 };
-let displayCurrency = 'CAD';
 
 function handleFromPage() {
   const params = new URLSearchParams(window.location.search);
   return params.get('handle') || FALLBACK_HANDLE;
 }
 
-function money(amount) {
-  let n = Number(amount);
-  if (displayCurrency !== 'CAD' && rates[displayCurrency]) {
-    n = n * rates[displayCurrency];
-  }
+function money(amount, currency) {
+  const code = currency || 'CAD';
   try {
     return new Intl.NumberFormat(undefined, {
       style: 'currency',
-      currency: displayCurrency
-    }).format(n);
+      currency: code
+    }).format(Number(amount));
   } catch (e) {
-    return n.toFixed(2) + ' ' + displayCurrency;
+    return Number(amount).toFixed(2) + ' ' + code;
   }
 }
 
-async function localCurrency() {
-  const saved = localStorage.getItem(CURRENCY_KEY);
-  if (saved) {
-    return saved;
-  }
-
-  try {
-    const res = await fetch('https://ipwho.is/');
-    const data = await res.json();
-    if (data.currency && data.currency.code) {
-      return data.currency.code;
+function findVariant(id) {
+  const variants = current.variants.nodes;
+  for (let i = 0; i < variants.length; i++) {
+    if (variants[i].id === id) {
+      return variants[i];
     }
-  } catch (e) {}
-
-  try {
-    const loc = new Intl.Locale(navigator.language).maximize();
-    const map = {
-      NG: 'NGN', US: 'USD', GB: 'GBP', CA: 'CAD',
-      GH: 'GHS', KE: 'KES', ZA: 'ZAR', IN: 'INR',
-      AU: 'AUD', NZ: 'NZD', JP: 'JPY', EU: 'EUR',
-      FR: 'EUR', DE: 'EUR', IE: 'EUR'
-    };
-    if (loc.region && map[loc.region]) {
-      return map[loc.region];
-    }
-  } catch (e) {}
-
-  return 'CAD';
-}
-
-async function loadRates() {
-  try {
-    const res = await fetch('https://open.er-api.com/v6/latest/CAD');
-    const data = await res.json();
-    if (data.rates) {
-      rates = data.rates;
-      rates.CAD = 1;
-    }
-  } catch (e) {}
-}
-
-function fillCurrencySelect(code) {
-  const list = CURRENCY_PICKS.slice();
-  if (list.indexOf(code) === -1) {
-    list.unshift(code);
   }
-
-  currencyEl.innerHTML = '';
-  for (let i = 0; i < list.length; i++) {
-    const item = list[i];
-    if (item !== 'CAD' && !rates[item]) {
-      continue;
-    }
-    const opt = document.createElement('option');
-    opt.value = item;
-    opt.textContent = item;
-    currencyEl.append(opt);
-  }
-
-  if (code === 'CAD' || rates[code]) {
-    displayCurrency = code;
-  } else {
-    displayCurrency = 'CAD';
-  }
-  currencyEl.value = displayCurrency;
-}
-
-function refreshPrices() {
-  if (current && variantEl.value) {
-    showVariant(variantEl.value);
-  }
-  paintCart();
+  return variants[0];
 }
 
 function readCart() {
@@ -177,9 +105,11 @@ function paintCart() {
 
   emptyEl.hidden = true;
   let sum = 0;
+  let currency = 'CAD';
 
   for (const line of items) {
     sum += Number(line.amount) * line.qty;
+    currency = line.currency || currency;
 
     const li = document.createElement('li');
     li.className = 'line';
@@ -193,14 +123,14 @@ function paintCart() {
     name.textContent = line.product + ' — ' + line.variant;
     const detail = document.createElement('p');
     detail.className = 'muted';
-    detail.textContent = line.qty + ' × ' + money(line.amount);
+    detail.textContent = line.qty + ' × ' + money(line.amount, line.currency);
 
     meta.append(name, detail);
     li.append(img, meta);
     linesEl.append(li);
   }
 
-  subtotalEl.textContent = 'Subtotal ' + money(sum);
+  subtotalEl.textContent = 'Subtotal ' + money(sum, currency);
 }
 
 function setMainImage(url, alt) {
@@ -216,16 +146,9 @@ function markThumb(url) {
 }
 
 function showVariant(id) {
-  const variants = current.variants.nodes;
-  let picked = variants[0];
-  for (const v of variants) {
-    if (v.id === id) {
-      picked = v;
-      break;
-    }
-  }
+  const picked = findVariant(id);
 
-  priceEl.textContent = money(picked.price.amount);
+  priceEl.textContent = money(picked.price.amount, picked.price.currencyCode);
 
   if (picked.image && picked.image.url) {
     const alt = picked.image.altText || current.title + ', ' + picked.title;
@@ -333,26 +256,13 @@ variantEl.addEventListener('change', function () {
   showVariant(variantEl.value);
 });
 
-currencyEl.addEventListener('change', function () {
-  displayCurrency = currencyEl.value;
-  localStorage.setItem(CURRENCY_KEY, displayCurrency);
-  refreshPrices();
-});
-
 formEl.addEventListener('submit', function (event) {
   event.preventDefault();
   if (!current) {
     return;
   }
 
-  const variants = current.variants.nodes;
-  let picked = variants[0];
-  for (const v of variants) {
-    if (v.id === variantEl.value) {
-      picked = v;
-      break;
-    }
-  }
+  const picked = findVariant(variantEl.value);
 
   const qty = Number(qtyEl.value) || 1;
   const items = readCart();
@@ -388,13 +298,5 @@ document.addEventListener('keydown', function (event) {
   }
 });
 
-async function start() {
-  paintCart();
-  const fx = Promise.all([localCurrency(), loadRates()]);
-  await loadProduct();
-  const pair = await fx;
-  fillCurrencySelect(pair[0]);
-  refreshPrices();
-}
-
-start();
+paintCart();
+loadProduct();
