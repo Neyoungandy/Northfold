@@ -1,0 +1,34 @@
+{% doc %}
+  Free-shipping progress for the product page.
+
+  First paint is Liquid from cart.total_price. After a fetch add, the
+  product section HTML from the Cart API `sections` response replaces
+  this node so the bar is not rebuilt in JavaScript.
+
+  @param {number} threshold_cents - Goal in cents from the section setting
+{% enddoc %}
+
+{% liquid
+  assign remaining = threshold_cents | minus: cart.total_price
+  if remaining < 0
+    assign remaining = 0
+  endif
+  assign remaining_money = remaining | money
+  assign progress_value = cart.total_price | at_most: threshold_cents
+%}
+
+<div class="nf-ship" data-nf-ship>
+  <label for="nf-ship-progress-{{ section.id }}">{{ 'products.free_shipping.label' | t }}</label>
+  <progress
+    id="nf-ship-progress-{{ section.id }}"
+    max="{{ threshold_cents }}"
+    value="{{ progress_value }}"
+  ></progress>
+  <p data-nf-ship-msg aria-live="polite">
+    {% if cart.total_price >= threshold_cents %}
+      {{ 'products.free_shipping.unlocked' | t }}
+    {% else %}
+      {{ 'products.free_shipping.remaining' | t: amount: remaining_money }}
+    {% endif %}
+  </p>
+</div>

@@ -33,7 +33,8 @@
         "show_quantity": true,
         "variant_label": "Variant",
         "quantity_label": "Quantity",
-        "add_label": "Add to cart"
+        "add_label": "Add to cart",
+        "free_shipping_threshold": 60
       }
     }
   },

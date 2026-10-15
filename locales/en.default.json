@@ -19,6 +19,20 @@
     "update": "Update",
     "remove": "Remove"
   },
+  "products": {
+    "add": {
+      "success": "Added to cart",
+      "fail": "Could not add to cart"
+    },
+    "care": {
+      "heading": "Care instructions"
+    },
+    "free_shipping": {
+      "label": "Free shipping progress",
+      "remaining": "You are {{ amount }} away from free shipping",
+      "unlocked": "You have free shipping"
+    }
+  },
   "customers": {
     "login": {
       "email": "Email",
