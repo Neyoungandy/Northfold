@@ -2,10 +2,15 @@
 {% assign main_image = product.featured_image | default: product.images.first %}
 {% assign main_alt = main_image.alt | default: product.title %}
 
+{% assign threshold_cents = section.settings.free_shipping_threshold | times: 100 %}
+
 <section
   class="nf-product"
   style="--nf-bg: {{ section.settings.background }};"
   data-nf-product
+  data-section-id="{{ section.id }}"
+  data-added="{{ 'products.add.success' | t | escape }}"
+  data-fail="{{ 'products.add.fail' | t | escape }}"
 >
   <div class="nf-grid">
     <div class="nf-gallery">
@@ -123,7 +128,15 @@
             Sold out
           {% endif %}
         </button>
+
+        <p class="nf-status" data-nf-status role="status" aria-live="polite" aria-atomic="true"></p>
       {% endform %}
+
+      {% render 'northfold-care' %}
+
+      {% if threshold_cents > 0 %}
+        {% render 'northfold-shipping-bar', threshold_cents: threshold_cents %}
+      {% endif %}
     </div>
   </div>
 
@@ -237,6 +250,53 @@
     cursor: not-allowed;
   }
 
+  .nf-status {
+    min-height: 1.3em;
+    margin: 0.6rem 0 0;
+    font-size: 0.95rem;
+  }
+
+  .nf-care {
+    margin: 1.5rem 0 0;
+    max-width: 20rem;
+    border-top: 1px solid #d9d0c4;
+    padding-top: 0.8rem;
+  }
+
+  .nf-care summary {
+    cursor: pointer;
+  }
+
+  .nf-care__body {
+    margin-top: 0.5rem;
+    color: #6a6158;
+  }
+
+  .nf-ship {
+    margin: 1.5rem 0 0;
+    max-width: 20rem;
+  }
+
+  .nf-ship label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6a6158;
+  }
+
+  .nf-ship progress {
+    display: block;
+    width: 100%;
+    height: 0.55rem;
+  }
+
+  .nf-ship p {
+    margin: 0.45rem 0 0;
+    font-size: 0.95rem;
+  }
+
   .nf-benefits {
     margin-top: 2.5rem;
   }
@@ -327,6 +387,94 @@
         main.removeAttribute('srcset');
       });
     }
+
+    var form = root.querySelector('.nf-form');
+    var status = root.querySelector('[data-nf-status]');
+
+    function cartPath(path) {
+      return window.Shopify.routes.root + path;
+    }
+
+    function swapNode(html, selector) {
+      var parsed = new DOMParser().parseFromString(html, 'text/html');
+      var next = parsed.querySelector(selector);
+      var current = document.querySelector(selector);
+      if (next && current) {
+        current.replaceWith(next);
+      }
+    }
+
+    if (form) {
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        var idField = form.querySelector('[name="id"]');
+        var qtyField = form.querySelector('[name="quantity"]');
+        var payload = {
+          items: [
+            {
+              id: Number(idField.value),
+              quantity: qtyField ? Number(qtyField.value) : 1
+            }
+          ],
+          sections: [root.getAttribute('data-section-id'), 'header'],
+          sections_url: window.location.pathname
+        };
+
+        if (addBtn) {
+          addBtn.disabled = true;
+        }
+
+        fetch(cartPath('cart/add.js'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (response) {
+            return response.json().then(function (data) {
+              return { ok: response.ok, data: data };
+            });
+          })
+          .then(function (result) {
+            if (!result.ok) {
+              if (status) {
+                status.textContent =
+                  result.data.description || result.data.message || root.getAttribute('data-fail');
+              }
+              if (addBtn) {
+                addBtn.disabled = false;
+              }
+              return;
+            }
+
+            if (status) {
+              status.textContent = root.getAttribute('data-added');
+            }
+
+            var sections = result.data.sections || {};
+            var productHtml = sections[root.getAttribute('data-section-id')];
+            var headerHtml = sections.header;
+            if (productHtml) {
+              swapNode(productHtml, '[data-nf-ship]');
+            }
+            if (headerHtml) {
+              swapNode(headerHtml, '[data-nf-cart-count]');
+            }
+
+            if (addBtn) {
+              addBtn.disabled = false;
+            }
+          })
+          .catch(function () {
+            if (status) {
+              status.textContent = root.getAttribute('data-fail');
+            }
+            if (addBtn) {
+              addBtn.disabled = false;
+            }
+          });
+      });
+    }
   }
 {% endjavascript %}
 
@@ -380,6 +528,13 @@
       "id": "add_label",
       "label": "Add to cart label",
       "default": "Add to cart"
+    },
+    {
+      "type": "number",
+      "id": "free_shipping_threshold",
+      "label": "Free shipping threshold",
+      "default": 60,
+      "info": "Amount in the shop currency. Change this for promotions. The bar uses cart total, not a number in the script."
     }
   ],
   "blocks": [
