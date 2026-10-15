@@ -61,27 +61,38 @@
       {% endif %}
 
       {% form 'product', product, class: 'nf-form' %}
-        <label for="nf-variant-{{ section.id }}">{{ section.settings.variant_label | escape }}</label>
-        <select
-          id="nf-variant-{{ section.id }}"
-          name="id"
-          data-nf-variants
-        >
-          {% for variant in product.variants %}
-            <option
-              value="{{ variant.id }}"
-              {% if variant == current_variant %}
-                selected
-              {% endif %}
-              data-price="{{ variant.price | money }}"
-              {% if variant.image %}
-                data-src="{{ variant.image | image_url: width: 1200 }}"
-              {% endif %}
-            >
-              {{ variant.title }}
-            </option>
-          {% endfor %}
-        </select>
+        {% if product.has_only_default_variant %}
+          <input type="hidden" name="id" value="{{ current_variant.id }}">
+        {% else %}
+          <label for="nf-variant-{{ section.id }}">{{ section.settings.variant_label | escape }}</label>
+          <select
+            id="nf-variant-{{ section.id }}"
+            name="id"
+            data-nf-variants
+          >
+            {% for variant in product.variants %}
+              <option
+                value="{{ variant.id }}"
+                {% if variant == current_variant %}
+                  selected
+                {% endif %}
+                {% unless variant.available %}
+                  disabled
+                {% endunless %}
+                data-available="{% if variant.available %}true{% else %}false{% endif %}"
+                data-price="{{ variant.price | money }}"
+                {% if variant.image %}
+                  data-src="{{ variant.image | image_url: width: 1200 }}"
+                {% endif %}
+              >
+                {{ variant.title }}
+                {% unless variant.available %}
+                  — Sold out
+                {% endunless %}
+              </option>
+            {% endfor %}
+          </select>
+        {% endif %}
 
         {% if section.settings.show_quantity %}
           <label for="nf-qty-{{ section.id }}">{{ section.settings.quantity_label | escape }}</label>
@@ -91,11 +102,26 @@
             name="quantity"
             min="1"
             value="1"
+            {% unless current_variant.available %}
+              disabled
+            {% endunless %}
           >
         {% endif %}
 
-        <button type="submit" name="add">
-          {{ section.settings.add_label | escape }}
+        <button
+          type="submit"
+          name="add"
+          data-nf-add
+          data-add-label="{{ section.settings.add_label | escape }}"
+          {% unless current_variant.available %}
+            disabled
+          {% endunless %}
+        >
+          {% if current_variant.available %}
+            {{ section.settings.add_label | escape }}
+          {% else %}
+            Sold out
+          {% endif %}
         </button>
       {% endform %}
     </div>
@@ -206,6 +232,11 @@
     cursor: pointer;
   }
 
+  .nf-form button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
   .nf-benefits {
     margin-top: 2.5rem;
   }
@@ -259,6 +290,18 @@
     var select = root.querySelector('[data-nf-variants]');
     var price = root.querySelector('[data-nf-price]');
     var main = root.querySelector('.nf-main');
+    var addBtn = root.querySelector('[data-nf-add]');
+    var qtyInput = root.querySelector('input[name="quantity"]');
+
+    function setAddState(available) {
+      if (addBtn) {
+        addBtn.disabled = !available;
+        addBtn.textContent = available ? addBtn.getAttribute('data-add-label') : 'Sold out';
+      }
+      if (qtyInput) {
+        qtyInput.disabled = !available;
+      }
+    }
 
     if (select && price) {
       select.addEventListener('change', function () {
@@ -271,6 +314,7 @@
           main.src = src;
           main.removeAttribute('srcset');
         }
+        setAddState(opt.getAttribute('data-available') !== 'false');
       });
     }
 
@@ -298,7 +342,7 @@
     {
       "type": "text",
       "id": "kicker",
-      "label": "Kicker",
+      "label": "Text above title",
       "default": "From the catalogue"
     },
     {
