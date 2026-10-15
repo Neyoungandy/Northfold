@@ -7,3 +7,5 @@ Shopify theme section for the product page. Title, price, description, images an
 **Decision:** I put section CSS and the variant-price script in `{% stylesheet %}` and `{% javascript %}` on the section, not a global asset, so the product page styles do not leak onto every other template.
 
 **Next:** Point the header and cart at the same Northfold look, then connect a real catalogue once products are in the store.
+
+Reviewers should open the unpublished theme via Online Store → Themes → Preview → Share preview (not the store’s live/default theme URL).
