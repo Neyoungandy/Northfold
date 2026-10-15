@@ -1,11 +1,9 @@
 # Northfold theme
 
-Shopify theme section for the product page. Title, price, description, images and variants all come from Liquid. Merchants edit benefits, heading, background and quantity in the theme editor — no developer needed for copy changes.
+Product page section with Liquid product data, merchant-editable benefits, fetch add to cart, and a free-shipping bar. The bar’s first paint uses `cart.total_price`. After add, the Cart API returns the product and header sections so the remaining amount and cart count update without a reload. The threshold is a theme editor number (default 60), not a figure in the script.
 
-`templates/product.json` uses `sections/northfold-product.liquid` instead of the default product section. Add to cart is `{% form 'product', product %}`. Benefits live in `snippets/northfold-benefits.liquid` so the section stays short.
+**Decision:** Cart URLs are always `window.Shopify.routes.root + 'cart/add.js'` so markets/locales stay correct. The bar is a labelled `<progress>` with `aria-live` on the remaining/success copy.
 
-**Decision:** I put section CSS and the variant-price script in `{% stylesheet %}` and `{% javascript %}` on the section, not a global asset, so the product page styles do not leak onto every other template.
+**Next:** Optional cart drawer after add. Care copy shows when `custom.care_instructions` is set on the product; leave it blank to hide the block.
 
-**Next:** Point the header and cart at the same Northfold look, then connect a real catalogue once products are in the store.
-
-Reviewers should open the unpublished theme via Online Store → Themes → Preview → Share preview (not the store’s live/default theme URL).
+Reviewers: unpublished Share preview, GitHub `day-4` branch, storefront password in the note (not here).

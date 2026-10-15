@@ -1,0 +1,14 @@
+{% doc %}
+  Care instructions from a product metafield. Hidden when the product
+  has no value so empty details never show.
+
+  @example
+  {% render 'northfold-care' %}
+{% enddoc %}
+
+{% if product.metafields.custom.care_instructions.value != blank %}
+  <details class="nf-care">
+    <summary>{{ 'products.care.heading' | t }}</summary>
+    <div class="nf-care__body">{{ product.metafields.custom.care_instructions | metafield_tag }}</div>
+  </details>
+{% endif %}
