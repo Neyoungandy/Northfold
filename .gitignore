@@ -1,2 +1,18 @@
 .vscode
+.vscode/
+.idea/
 
+AGENTS.md
+CLAUDE.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+copilot-instructions.md
+LICENSE.md
+
+.DS_Store
+Thumbs.db
+node_modules/
+.shopify/
+.env
+.env.*
+*.zip
