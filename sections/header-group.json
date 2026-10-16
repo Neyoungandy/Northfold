@@ -11,6 +11,15 @@
   "type": "header",
   "name": "t:general.header",
   "sections": {
+    "announcement-bar": {
+      "type": "northfold-announcement-bar",
+      "settings": {
+        "message": "Free shipping on orders over $60",
+        "link": "",
+        "background": "#2c2824",
+        "text_color": "#fbf8f3"
+      }
+    },
     "header": {
       "type": "header",
       "settings": {}
@@ -23,6 +32,7 @@
     }
   },
   "order": [
+    "announcement-bar",
     "header",
     "cart-drawer"
   ],
