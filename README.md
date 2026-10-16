@@ -4,6 +4,6 @@ Product page section with Liquid product data, merchant-editable benefits, fetch
 
 **Decision:** Cart URLs are always `window.Shopify.routes.root + 'cart/add.js'` so markets/locales stay correct. The bar is a labelled `<progress>` with `aria-live` on the remaining/success copy.
 
-**Next:** Optional cart drawer after add. Care copy shows when `custom.care_instructions` is set on the product; leave it blank to hide the block.
+**Next:** Care copy shows when `custom.care_instructions` is set on the product; leave it blank to hide the block. After add, a cart drawer opens from the same Cart API `sections` response.
 
 Reviewers: unpublished Share preview, GitHub `day-4` branch, storefront password in the note (not here).

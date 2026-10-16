@@ -417,7 +417,7 @@
               quantity: qtyField ? Number(qtyField.value) : 1
             }
           ],
-          sections: [root.getAttribute('data-section-id'), 'header'],
+          sections: [root.getAttribute('data-section-id'), 'header', 'cart-drawer'],
           sections_url: window.location.pathname
         };
 
@@ -460,6 +460,10 @@
             if (headerHtml) {
               swapNode(headerHtml, '[data-nf-cart-count]');
             }
+            if (sections['cart-drawer']) {
+              swapNode(sections['cart-drawer'], '[data-nf-drawer-panel]');
+            }
+            document.dispatchEvent(new CustomEvent('nf:cart-added'));
 
             if (addBtn) {
               addBtn.disabled = false;

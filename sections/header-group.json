@@ -14,9 +14,16 @@
     "header": {
       "type": "header",
       "settings": {}
+    },
+    "cart-drawer": {
+      "type": "northfold-cart-drawer",
+      "settings": {
+        "heading": "Cart"
+      }
     }
   },
   "order": [
-    "header"
+    "header",
+    "cart-drawer"
   ],
 }
