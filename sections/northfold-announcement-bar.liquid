@@ -1,0 +1,123 @@
+{% if section.settings.message != blank %}
+  <div
+    class="nf-announce"
+    data-nf-announce
+    style="
+      --nf-announce-bg: {{ section.settings.background }};
+      --nf-announce-fg: {{ section.settings.text_color }};
+    "
+    {{ section.shopify_attributes }}
+  >
+    {% if section.settings.link != blank %}
+      <a class="nf-announce__text" href="{{ section.settings.link }}">
+        {{ section.settings.message | escape }}
+      </a>
+    {% else %}
+      <p class="nf-announce__text">{{ section.settings.message | escape }}</p>
+    {% endif %}
+
+    <button
+      type="button"
+      class="nf-announce__close"
+      data-nf-announce-close
+      aria-label="{{ 'general.announcement.close' | t }}"
+    >
+      {{ 'general.announcement.close' | t }}
+    </button>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .nf-announce {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.65rem 1rem;
+    background: var(--nf-announce-bg, #2c2824);
+    color: var(--nf-announce-fg, #fbf8f3);
+    font-family: Georgia, "Palatino Linotype", Palatino, serif;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+
+  .nf-announce[hidden] {
+    display: none;
+  }
+
+  .nf-announce__text {
+    margin: 0;
+    color: inherit;
+  }
+
+  .nf-announce__close {
+    flex-shrink: 0;
+    border: 0;
+    padding: 0.2rem 0.4rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  var bar = document.querySelector('[data-nf-announce]');
+  if (bar) {
+    var storageKey = 'nf-announce-dismissed';
+    var inEditor = window.Shopify && window.Shopify.designMode;
+
+    if (!inEditor) {
+      if (sessionStorage.getItem(storageKey) === '1') {
+        bar.hidden = true;
+      }
+    }
+
+    var closeBtn = bar.querySelector('[data-nf-announce-close]');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        bar.hidden = true;
+        if (!inEditor) {
+          sessionStorage.setItem(storageKey, '1');
+        }
+      });
+    }
+  }
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "tag": "div",
+  "class": "northfold-announcement",
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "message",
+      "label": "Message",
+      "default": "Free shipping on orders over $60"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Optional link"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#2c2824"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#fbf8f3"
+    }
+  ]
+}
+{% endschema %}

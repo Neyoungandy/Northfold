@@ -1,9 +1,9 @@
 # Northfold theme
 
-Product page section with Liquid product data, merchant-editable benefits, fetch add to cart, and a free-shipping bar. The bar’s first paint uses `cart.total_price`. After add, the Cart API returns the product and header sections so the remaining amount and cart count update without a reload. The threshold is a theme editor number (default 60), not a figure in the script.
+Announcement bar at the top of every page (header group). Merchants edit the message, optional link, and colours in the theme editor. Empty message hides the bar. Dismiss uses sessionStorage so it stays gone for the rest of that visit, then comes back next visit. Assumed: changing the copy mid-visit does not bring it back until a new session.
 
-**Decision:** Cart URLs are always `window.Shopify.routes.root + 'cart/add.js'` so markets/locales stay correct. The bar is a labelled `<progress>` with `aria-live` on the remaining/success copy.
+**Decision:** sessionStorage, not localStorage, because the ticket is “this visit”, not “forever”. The close control is a real button so keyboard users can tab to it and press Enter.
 
-**Next:** Care copy shows when `custom.care_instructions` is set on the product; leave it blank to hide the block. After add, a cart drawer opens from the same Cart API `sections` response.
+**Next:** If a new promo should interrupt a dismissed visit, store a hash of the message in sessionStorage and show the bar again when the copy changes.
 
-Reviewers: unpublished Share preview, GitHub `day-4` branch, storefront password in the note (not here).
+Day 4 product work is unchanged: fetch add to cart, free-shipping bar, drawer.
